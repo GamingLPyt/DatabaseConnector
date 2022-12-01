@@ -609,25 +609,22 @@ public class Database {
      * @param filePath The file's path you'd like to export to
      * @throws SQLException if there is an error communicating with the database
      */
-    public void exportToCSV(final String table, final String filePath) throws SQLException {
+    public void exportToCSV(final String table, final String filePath) throws SQLException, IOException {
         final String statement = "SELECT * FROM `" + table + "`";
         if (this.debug)
             this.log("Exporting table: " + table + " to file: " + filePath);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
-        try {
-            final FileWriter writer = new FileWriter(filePath);
-            while (resultSet.next()) {
-                for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-                    writer.write(resultSet.getString(i));
-                    if (i != resultSet.getMetaData().getColumnCount())
-                        writer.write(",");
-                }
-                writer.write("\n");
+
+        final FileWriter writer = new FileWriter(filePath);
+        while (resultSet.next()) {
+            for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+                writer.write(resultSet.getString(i));
+                if (i != resultSet.getMetaData().getColumnCount())
+                    writer.write(",");
             }
-            writer.close();
-        } catch (final IOException e) {
-            e.printStackTrace();
+            writer.write("\n");
         }
+        writer.close();
     }
 
     /**
@@ -778,7 +775,7 @@ public class Database {
      * @param object The object you'd like to insert
      * @throws SQLException if there is an error communicating with the database
      */
-    public void insert(final String table, final Object object) throws SQLException {
+    public void insert(final String table, final Object object) throws SQLException, IllegalAccessException {
         final ArrayList<String> keys = new ArrayList<>();
         final ArrayList<String> values = new ArrayList<>();
 
@@ -795,12 +792,8 @@ public class Database {
             }
 
             keys.add(key);
-            try {
-                field.setAccessible(true);
-                values.add(field.get(object).toString());
-            } catch (final IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            field.setAccessible(true);
+            values.add(field.get(object).toString());
         }
 
         // Adds all fields from the superclass to the keys and values ArrayLists
@@ -816,12 +809,8 @@ public class Database {
             }
 
             keys.add(key);
-            try {
-                field.setAccessible(true);
-                values.add(field.get(object).toString());
-            } catch (final IllegalAccessException e) {
-                e.printStackTrace();
-            }
+            field.setAccessible(true);
+            values.add(field.get(object).toString());
         }
 
         // Loops through and puts everything in a HashMap
@@ -859,8 +848,8 @@ public class Database {
                 }
 
                 keys.add(key);
+                field.setAccessible(true);
                 try {
-                    field.setAccessible(true);
                     values.add(field.get(object).toString());
                 } catch (final IllegalAccessException e) {
                     e.printStackTrace();
