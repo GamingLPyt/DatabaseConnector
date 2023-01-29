@@ -129,7 +129,7 @@ public class Database {
      * @throws IllegalStateException If the arraylist is empty
      */
     public void createTable(@NotNull final TableBuilder table) throws SQLException, IllegalStateException {
-        final StringBuilder statement = new StringBuilder("CREATE TABLE \"" + table.getName() + "\" (\n");
+        final StringBuilder statement = new StringBuilder("CREATE TABLE `" + table.getName() + "` (\n");
 
         if (table.getColumns().isEmpty())
             throw new IllegalStateException("There are no columns for table " + table.getName() + ".");
@@ -141,9 +141,9 @@ public class Database {
             final String name = column.getName();
 
             if (first == column)
-                statement.append("\t\"").append(name).append("\" ").append(type);
+                statement.append("\t`").append(name).append("` ").append(type);
             else
-                statement.append("\n\t\"").append(name).append("\" ").append(type);
+                statement.append("\n\t`").append(name).append("` ").append(type);
 
 
             statement.append("(").append(column.getLength()).append(")");
@@ -158,7 +158,7 @@ public class Database {
         }
 
         if (table.getPrimaryKey() != null)
-            statement.append(",\n\tPRIMARY KEY (\"").append(table.getPrimaryKey()).append("\")");
+            statement.append(",\n\tPRIMARY KEY (`").append(table.getPrimaryKey()).append("`)");
 
         statement.append("\n);");
 
@@ -246,7 +246,7 @@ public class Database {
      */
     @Nullable
     public Object get(@NotNull final String table, @NotNull final String key, @NotNull final String value, @NotNull final String column) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\"";
+        final String statement = "SELECT * FROM `" + table + "`";
         final ResultSet set = new Statement(statement, this.connection).executeWithResults();
 
         if (this.debug)
@@ -280,7 +280,7 @@ public class Database {
      */
     @Nullable
     public Optional<List<Object>> getList(@NotNull final String table, @NotNull final String key, @NotNull final String value, @NotNull final String column) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\"";
+        final String statement = "SELECT * FROM `" + table + "`";
         final ResultSet set = new Statement(statement, this.connection).executeWithResults();
 
         if (this.debug)
@@ -313,7 +313,7 @@ public class Database {
      */
     @Nullable
     public Optional<List<Object>> getList(@NotNull final String table, @NotNull final String column) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\"";
+        final String statement = "SELECT * FROM `" + table + "`";
         final ResultSet set = new Statement(statement, this.connection).executeWithResults();
 
         if (this.debug)
@@ -353,7 +353,7 @@ public class Database {
      * @throws SQLException if there is an error
      */
     public void insert(@NotNull final String table, @NotNull final HashMap<String, String> values) throws SQLException {
-        final StringBuilder statement = new StringBuilder("insert into \"" + table + "\" (\n\t");
+        final StringBuilder statement = new StringBuilder("insert into `" + table + "` (\n\t");
 
         final ArrayList<String> keysArray = new ArrayList<>(values.keySet());
         final String lastKey = keysArray.get(keysArray.size() - 1);
@@ -396,7 +396,7 @@ public class Database {
      * @throws SQLException if there is an error
      */
     public void insert(@NotNull final InsertBuilder builder) throws SQLException {
-        final StringBuilder statement = new StringBuilder("insert into \"" + builder.getTable() + "\" (\n\t");
+        final StringBuilder statement = new StringBuilder("insert into `" + builder.getTable() + "` (\n\t");
 
         final ArrayList<String> keysArray = new ArrayList<>(builder.getValues().keySet());
         final String lastKey = keysArray.get(keysArray.size() - 1);
@@ -440,7 +440,7 @@ public class Database {
      * @param value The value, such as the player's name
      */
     public void delete(@NotNull final String table, @NotNull final String key, @NotNull final String value) throws SQLException {
-        final String statement = "DELETE FROM \"" + table + "\" WHERE \"" + key + "\"=\"" + value + "\"";
+        final String statement = "DELETE FROM `" + table + "` WHERE `" + key + "`=`" + value + "`";
         new Statement(statement, this.connection).execute();
         if (this.debug)
             this.log("Deleting from table: " + table + " with key: " + key + " and value: " + value);
@@ -456,7 +456,7 @@ public class Database {
      * @throws SQLException if there is an error connecting to the database
      */
     public boolean rowExists(@NotNull final String table, @NotNull final String key, @NotNull final String value) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\" WHERE \"" + key + "\"=\"" + value + "\"";
+        final String statement = "SELECT * FROM `" + table + "` WHERE `" + key + "`=`" + value + "`";
         if (this.debug)
             this.log("Checking if row exists: " + statement);
         return new Statement(statement, this.connection).executeWithResults().next();
@@ -471,7 +471,7 @@ public class Database {
      * @throws SQLException if there is an error connecting to the database
      */
     public boolean rowExists(@NotNull final String table, @NotNull final WhereBuilder builder) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\" WHERE \"" + builder.getKey() + "\"=\"" + builder.getValue() + "\"";
+        final String statement = "SELECT * FROM `" + table + "` WHERE `" + builder.getKey() + "`=`" + builder.getValue() + "`";
         if (this.debug)
             this.log("Checking if row exists: " + statement);
         return new Statement(statement, this.connection).executeWithResults().next();
@@ -537,7 +537,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void update(@NotNull final String table, @NotNull final WhereBuilder whereBuilder, @NotNull final String column, @NotNull final String newColumn) throws SQLException {
-        final String statement = "UPDATE \"" + table + "\" SET \"" + column + "\"=\"" + newColumn + "\" WHERE \"" + whereBuilder.getKey() + "\"=\"" + whereBuilder.getValue() + "\"";
+        final String statement = "UPDATE `" + table + "` SET `" + column + "`=`" + newColumn + "` WHERE `" + whereBuilder.getKey() + "`=`" + whereBuilder.getValue() + "`";
         if (this.debug)
             this.log("Updating row with table: " + table + " with key: " + whereBuilder.getKey() + " and value: " + whereBuilder.getValue() + " with column: " + column + " and new value: " + newColumn);
         new Statement(statement, this.connection).execute();
@@ -553,7 +553,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void addColumnToTable(final String table, final String column, final String type, final int amount) throws SQLException {
-        final String statement = "ALTER TABLE \"" + table + "\" ADD \"" + column + "\" " + type + "(" + amount + ");";
+        final String statement = "ALTER TABLE `" + table + "` ADD `" + column + "` " + type + "(" + amount + ");";
         if (this.debug)
             this.log("Adding column to table: " + table + " with name: " + column + " and type: " + type);
         new Statement(statement, this.connection).execute();
@@ -567,7 +567,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void removeColumnFromTable(final String table, final String column) throws SQLException {
-        final String statement = "ALTER TABLE \"" + table + "\" DROP COLUMN \"" + column + "\";";
+        final String statement = "ALTER TABLE `" + table + "` DROP COLUMN `" + column + "`;";
         if (this.debug)
             this.log("Removing column: " + column + " from table: " + table);
         new Statement(statement, this.connection).execute();
@@ -582,7 +582,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void changeColumnName(final String table, final String oldName, final String newName) throws SQLException {
-        final String statement = "ALTER TABLE \"" + table + "\" CHANGE \"" + oldName + "\" \"" + newName + "\";";
+        final String statement = "ALTER TABLE `" + table + "` CHANGE `" + oldName + "` `" + newName + "`;";
         if (this.debug)
             this.log("Changing column name: " + oldName + " to " + newName + " in table: " + table);
         new Statement(statement, this.connection).execute();
@@ -596,7 +596,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void deleteColumnFromTable(final String table, final String column) throws SQLException {
-        final String statement = "ALTER TABLE \"" + table + "\" DROP COLUMN \"" + column + "\";";
+        final String statement = "ALTER TABLE `" + table + "` DROP COLUMN `" + column + "`;";
         if (this.debug)
             this.log("Deleteing column: " + column + " from table: " + table);
         new Statement(statement, this.connection).execute();
@@ -610,7 +610,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void exportToCSV(final String table, final String filePath) throws SQLException, IOException {
-        final String statement = "SELECT * FROM \"" + table + "\"";
+        final String statement = "SELECT * FROM `" + table + "`";
         if (this.debug)
             this.log("Exporting table: " + table + " to file: " + filePath);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -635,7 +635,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void importFromFile(final String table, final String filePath) throws SQLException {
-        final String statement = "LOAD DATA INFILE \"" + filePath + "\" INTO TABLE \"" + table + "\"";
+        final String statement = "LOAD DATA INFILE `" + filePath + "` INTO TABLE `" + table + "`";
         if (this.debug)
             this.log("Importing table: " + table + " from file: " + filePath);
         new Statement(statement, this.connection).execute();
@@ -649,7 +649,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public int countRows(final String table) throws SQLException {
-        final String statement = "SELECT COUNT(*) FROM \"" + table + "\"";
+        final String statement = "SELECT COUNT(*) FROM `" + table + "`";
         if (this.debug)
             this.log("Counting rows in table: " + table);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -678,7 +678,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public ResultSet getAllDataInTable(final String table) throws SQLException {
-        final String statement = "SELECT * FROM \"" + table + "\"";
+        final String statement = "SELECT * FROM `" + table + "`";
         if (this.debug)
             this.log("Getting all data in table: " + table);
         return new Statement(statement, this.connection).executeWithResults();
@@ -691,7 +691,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void deleteTableIfExists(final String table) throws SQLException {
-        final String statement = "DROP TABLE IF EXISTS \"" + table + "\"";
+        final String statement = "DROP TABLE IF EXISTS `" + table + "`";
         if (this.debug)
             this.log("Deleting table if it exists: " + table);
         new Statement(statement, this.connection).execute();
@@ -704,7 +704,7 @@ public class Database {
      * @param primaryKey The new primary key
      */
     public void replacePrimaryKey(final String table, final String primaryKey) {
-        final String statement = "ALTER TABLE \"" + table + "\" DROP PRIMARY KEY, ADD PRIMARY KEY (\"" + primaryKey + "\");";
+        final String statement = "ALTER TABLE `" + table + "` DROP PRIMARY KEY, ADD PRIMARY KEY (`" + primaryKey + "`);";
         if (this.debug)
             this.log("Changing primary key of table: " + table + " to: " + primaryKey);
         new Statement(statement, this.connection).execute();
@@ -718,7 +718,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void copyContentsToNewTable(final String table, final String copyFrom) throws SQLException {
-        final String statement = "INSERT INTO \"" + table + "\" SELECT * FROM \"" + copyFrom + "\";";
+        final String statement = "INSERT INTO `" + table + "` SELECT * FROM `" + copyFrom + "`;";
         if (this.debug)
             this.log("Copying contents from table: " + copyFrom + " to table: " + table);
         new Statement(statement, this.connection).execute();
@@ -732,7 +732,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public ResultSet describeTable(final String table) throws SQLException {
-        final String statement = "DESCRIBE \"" + table + "\"";
+        final String statement = "DESCRIBE `" + table + "`";
         if (this.debug)
             this.log("Describing table: " + table);
         return new Statement(statement, this.connection).executeWithResults();
@@ -747,7 +747,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public ResultSet describeColumn(final String table, final String column) throws SQLException {
-        final String statement = "DESCRIBE \"" + table + "\" \"" + column + "\"";
+        final String statement = "DESCRIBE `" + table + "` `" + column + "`";
         if (this.debug)
             this.log("Describing column: " + column + " in table: " + table);
         return new Statement(statement, this.connection).executeWithResults();
@@ -762,7 +762,7 @@ public class Database {
      * @throws SQLException if there is an error communicating with the database
      */
     public void setColumnDefaultValue(final String table, final String column, final String value) throws SQLException {
-        final String statement = "ALTER TABLE \"" + table + "\" ALTER \"" + column + "\" SET DEFAULT " + value + ";";
+        final String statement = "ALTER TABLE `" + table + "` ALTER `" + column + "` SET DEFAULT " + value + ";";
         if (this.debug)
             this.log("Setting default value: " + value + " for column: " + column + " in table: " + table);
         new Statement(statement, this.connection).execute();
@@ -907,7 +907,7 @@ public class Database {
      * @throws InvocationTargetException if there is an error invoking the object
      */
     public Object get(final String table, final String key, final String value, final Class<?> clazz) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final String statement = "SELECT * FROM \"" + table + "\" WHERE \"" + key + "\" = \"" + value + "\";";
+        final String statement = "SELECT * FROM `" + table + "` WHERE `" + key + "` = `" + value + "`;";
         if (this.debug)
             this.log("Reading object from table: " + table + " with key: " + key + " and value: " + value);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -947,7 +947,7 @@ public class Database {
      * @throws IllegalAccessException    If there is an error accessing some parameters within the object
      */
     public Optional<List<?>> getList(final String key, final String value, final String table, final Class<?> clazz) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final String statement = "SELECT * FROM \"" + table + "\" WHERE \"" + key + "\" = \"" + value + "\";";
+        final String statement = "SELECT * FROM `" + table + "` WHERE `" + key + "` = `" + value + "`;";
         if (this.debug)
             this.log("Reading objects from table: " + table + " with key: " + key + " and value: " + value);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -974,7 +974,7 @@ public class Database {
      * @throws IllegalAccessException    If there is an error accessing some parameters within the object
      */
     public Optional<List<?>> getList(final String table, final Class<?> clazz) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final String statement = "SELECT * FROM \"" + table + "\";";
+        final String statement = "SELECT * FROM `" + table + "`;";
         if (this.debug)
             this.log("Reading objects from table: " + table);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -1003,7 +1003,7 @@ public class Database {
      * @throws InvocationTargetException if there is an error invoking the object
      */
     private Object get(final String table, final String key, final String value, final Class<?> clazz, final int index) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final String statement = "SELECT * FROM \"" + table + "\" WHERE \"" + key + "\" = \"" + value + "\";";
+        final String statement = "SELECT * FROM `" + table + "` WHERE `" + key + "` = `" + value + "`;";
         if (this.debug)
             this.log("Reading object from table: " + table + " with key: " + key + " and value: " + value);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
@@ -1045,7 +1045,7 @@ public class Database {
      * @throws InvocationTargetException if there is an error invoking the object
      */
     private Object get(final String table, final Class<?> clazz, final int index) throws SQLException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        final String statement = "SELECT * FROM \"" + table + "\";";
+        final String statement = "SELECT * FROM `" + table + "`;";
         if (this.debug)
             this.log("Reading object from table: " + table);
         final ResultSet resultSet = new Statement(statement, this.connection).executeWithResults();
